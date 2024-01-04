@@ -1,8 +1,6 @@
 import importlib
 
-#_modules = []
-
-modules = [
+_modules = [
     'autobumper',
     'avatar_change',
     'bannercolor_change',
@@ -33,8 +31,8 @@ modules = [
     'vc_join',
     'webhook_spam',
 ]
-for module in modules:
-    module = module.split('\\')[-1].replace('.py', '')
-    if module not in ['__init__', '_utils', '_config']:
-        importlib.import_module(f'modules.{module}')
-        exec(f'_modules.append({module})')
+
+modules = []
+for module in _modules:
+    importlib.import_module(f'modules.{module}')
+    exec(f'modules.append({module})')

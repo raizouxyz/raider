@@ -12,7 +12,7 @@ def leveling(cache, guild_id, textchannel_id, voicechannel_id):
     ws.connect("wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream", http_proxy_host=cache['proxy_detail']['host'], http_proxy_port=cache['proxy_detail']['port'], http_proxy_auth=(cache['proxy_detail']['username'], cache['proxy_detail']['password']))
     ws.send(f'{{"op":2,"d":{{"token":"{cache["login_information"]["token"]}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"online","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"highest_last_message_id":"0","read_state_version":0,"user_guild_settings_version":-1,"user_settings_version":-1,"private_channels_version":"0","api_code_version":0}}}}}}')
     ws.send(f'{{"op":4,"d":{{"guild_id":"{guild_id}","channel_id":"{voicechannel_id}","self_mute":false,"self_deaf":false,"self_video":false,"flags":2}}}}')
-    request_data = {'content':_utils.random_string(15, 5),"tts":False,"flags":0}
+    request_data = {'content': _utils.random_string(15, 5), "tts": False, "flags":0, 'mobile_network_type': "unknown"}
     response = requests.post(f'https://discord.com/api/v9/channels/{textchannel_id}/messages', headers=cache['headers'], proxies=cache['proxy'], json=request_data)
     print(response.status_code, response.text)
 

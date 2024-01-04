@@ -22,9 +22,9 @@ def start(filename):
     global module_status
     module_status = True
 
-    avatar = None
     with open(filename, mode='rb') as f:
         avatar = f'data:image/png;base64,{base64.b64encode(f.read()).decode("utf-8")}'
+
     for cache in _utils.caches:
         if module_status:
             threading.Thread(target=change, args=(cache, avatar)).start()

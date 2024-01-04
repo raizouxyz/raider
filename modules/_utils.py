@@ -6,30 +6,14 @@ import base64
 import random
 import string
 import requests
-import threading
 import markovify
 import tls_client
 import capmonster_python
-from Cryptodome.Cipher import AES
-from Crypto.Util.Padding import pad
-from Crypto.Util.Padding import unpad
-
-response = requests.get('https://raizou-zap.github.io/thunder/message.txt')
-response.encoding = 'utf-8'
-message = response.text
-
-response = requests.get('https://raizou-zap.github.io/thunder/update_version.txt')
-response.encoding = 'utf-8'
-update_version = response.text.replace('\n','')
-
-response = requests.get('https://raizou-zap.github.io/thunder/update_contents.txt')
-response.encoding = 'utf-8'
-update_contents = response.text
 
 # https://bogdanfinn.gitbook.io/open-source-oasis/tls-client/supported-and-tested-client-profiles
 session = tls_client.Session(client_identifier="chrome_117", random_tls_extension_order=True)
 
-file_checklist = ['config.json', 'tokens.txt', 'proxies.txt', 'caches.json', 'markov.txt']
+file_checklist = ['tokens.txt', 'proxies.txt', 'caches.json', 'markov.txt']
 for filename in file_checklist:
     if not os.path.isfile(f'./data/{filename}'):
         open(f'./data/{filename}', 'w')
@@ -60,7 +44,8 @@ with open('./data/proxies.txt', mode='r', encoding='utf-8') as f:
                         'username': None,
                         'password': None,
                         'host': proxy_detail_list[0],
-                        'port': '8080'
+                        'port': '8080',
+                        'raw': proxy
                     }
                 elif len(proxy_detail_list) == 2:
                     proxy_detail = {
@@ -68,7 +53,8 @@ with open('./data/proxies.txt', mode='r', encoding='utf-8') as f:
                         'username': None,
                         'password': None,
                         'host': proxy_detail_list[0],
-                        'port': proxy_detail_list[1]
+                        'port': proxy_detail_list[1],
+                        'raw': proxy
                     }
                 elif len(proxy_detail_list) == 4:
                     proxy_detail = {
@@ -76,7 +62,8 @@ with open('./data/proxies.txt', mode='r', encoding='utf-8') as f:
                         'username': proxy_detail_list[1].replace('//', ''),
                         'password': proxy_detail_list[2].split('@')[0],
                         'host': proxy_detail_list[2].split('@')[1],
-                        'port': proxy_detail_list[3]
+                        'port': proxy_detail_list[3],
+                        'raw': proxy
                     }
                 if '://' in proxy:
                     proxy_details[proxy] = proxy_detail
@@ -117,22 +104,25 @@ def markov_sentence():
         return ''
 
 def get_random_cache():
-    cache = None
     if len(caches) != 0:
         cache = random.choice(caches)
-    return cache
+        return cache
+    else:
+        return None
 
 def get_random_proxy():
-    proxy = {'http':None,'https':None}
     if len(proxies) != 0:
         proxy = random.choice(proxies)
-    return proxy
+        return proxy
+    else:
+        return {'http':None,'https':None}
 
 def get_random_token():
-    token = None
     if len(tokens) != 0:
         token = random.choice(tokens)
-    return token
+        return token
+    else:
+        return None
 
 def random_string(length, under_length:int=None, contain_punctuation=False):
     if under_length != None:
@@ -231,14 +221,15 @@ def empty_headers(proxy:dict=None):
     for cookie_name in response.cookies.keys():
         cookie += f'{cookie_name}={response.cookies[cookie_name]}; '
 
-    properties = f'{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{config["useragent"]}","browser_version":"{config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{config["client_build_number"]},"client_event_source":null}}'
+    properties = f'{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{config["useragent"]}","browser_version":"{config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{config["client_build_number"]},"client_event_source":null,"design_id":0}}'
+
     headers = {
         'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
+#        'Accept-Encoding': 'gzip, deflate, br',
+#        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
         'Cookie': cookie,
-        'Origin': 'https://discord.com',
-        'Referer': 'https://discord.com',
+#        'Origin': 'https://discord.com',
+#        'Referer': 'https://discord.com',
         'Sec-Ch-Ua':f'"Google Chrome";v="{config["chrome_version_major"]}", "Chromium";v="{config["chrome_version_major"]}", "Not?A_Brand";v="24"',
         'Sec-Ch-Ua-Mobile': '?0',
         'Sec-Ch-Ua-Platform': '"Windows"',
@@ -253,25 +244,6 @@ def empty_headers(proxy:dict=None):
     }
     return headers
 
-empty_headers()
-def encrypt(data, key, return_bytes=False):
-    if type(data) == str:
-        data = data.encode()
-    cipher = AES.new(key.encode(), AES.MODE_ECB)
-    crypted_bytes = cipher.encrypt(pad(data, AES.block_size))
-    crypted_string = base64.b64encode(crypted_bytes).decode('utf-8')
-    if return_bytes:
-        return crypted_bytes
-    else:
-        return crypted_string
-
-def decrypt(data, key):
-    if type(data) == str:
-        data = base64.b64decode(data.encode())
-    cipher = AES.new(key.encode(), AES.MODE_ECB)
-    decrypted_string = unpad(cipher.decrypt(data), AES.block_size).decode('utf-8')
-    return decrypted_string
-
 def solve_captcha(sitekey, siteurl, useragent=None, is_invisible=False, custom_data=None, proxy_detail=None):
     if config['captcha']['service'] == 'capmonster.cloud':
         capmonster = capmonster_python.HCaptchaTask(config['captcha']['apikey'])
@@ -282,35 +254,10 @@ def solve_captcha(sitekey, siteurl, useragent=None, is_invisible=False, custom_d
         task = capmonster.create_task(website_url=siteurl, website_key=sitekey, is_invisible=is_invisible, custom_data=custom_data)
         try:
             result = capmonster.join_task_result(task)
+            print(result)
             response = result.get('gRecaptchaResponse')
             return response
         except:
             return False
     else:
         return False
-
-class threading_manager:
-    def __init__(self):
-        self.threads = []
-
-    def start(self, target, args=None, kwargs=None):
-        thread = None
-        if args != None:
-            if kwargs != None:
-                thread = threading.Thread(target=target, args=args, kwargs=kwargs)
-            else:
-                thread = threading.Thread(target=target, args=args)
-        else:
-            thread = threading.Thread(target=target)
-        self.threads.append(thread)
-        
-        return thread
-
-    def join(self, join=True, clear:bool=True):
-        for thread in self.threads:
-            thread.start()
-        if join:
-            for thread in self.threads:
-                thread.join()
-        if clear:
-            self.threads = []

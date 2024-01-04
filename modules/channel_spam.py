@@ -17,7 +17,7 @@ def spam(cache, guild_id, channel_list, content, reply_message_id, typing, conve
     content = _utils.replace_content(content, mention_members)
     if convert:
         content = _utils.random_convert(content)
-    request_data = {'content':content,"tts":False,"flags":0, 'mobile_network_type':"unknown"}
+    request_data = {'content': content, "tts": False, "flags": 0, 'mobile_network_type': "unknown"}
     if reply_message_id != '':
         request_data['message_reference'] = {'guild_id':guild_id,'channel_id':channel_id,'message_id':reply_message_id}
     if typing:

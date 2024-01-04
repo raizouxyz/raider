@@ -42,7 +42,6 @@ def bump(cache, guild_id, channel_id, command, option_number=None):
                     wait_minutes = int(message['content'].replace('分残りました。', ''))+1
                     time.sleep(wait_minutes*60)
                     break
-        #print(response.json()[0]['embeds'][0]['fields'][0]['name'])
 
 def start(guild_id, channel_id):
     global module_status
@@ -77,7 +76,6 @@ def stop():
     module_status = False
 
 def draw_module(module_frame):
-    print('aa')
     guild_id = tkinter.StringVar()
     channel_id = tkinter.StringVar()
 

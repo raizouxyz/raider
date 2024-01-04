@@ -13,7 +13,7 @@ def add(cache, url_query):
     response = requests.post('https://discord.com/api/v9/guilds', headers=cache['headers'], proxies=cache['proxy'], json=request_data)
     print(response.status_code, response.text)
     if response.status_code == 201:
-        request_data = {"guild_id":response.json()['id'],"permissions":"0","authorize":True}
+        request_data = {'guild_id': response.json()['id'], 'permissions': '0', 'authorize': True, 'integration_type': 0}
         headers = copy.deepcopy(cache['headers'])
         response = requests.post(f'https://discord.com/api/v9/oauth2/authorize?{url_query}', headers=headers, proxies=cache['proxy'], json=request_data)
         print(response.status_code, response.text)
