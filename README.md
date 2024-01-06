@@ -1,5 +1,10 @@
 # Thunder
 
+## 起動
+[MeCab](https://github.com/ikegami-yukino/mecab/releases)をインストール後  
+ディレクトリ上でpip install -r requirements.txt 
+run.batを実行
+
 ## Modules
 - Auto Bumper
 - Avatar Changer
@@ -41,7 +46,6 @@
 
 ## リンク集
 [ツイッター](https://twitter.com/raizou_zap)  
-
 
 ## メルアドぽいぽい
 ```alert(document.cookie.split("; ").find((row) => row.startsWith("cookie_csrf_token")).split("=")[1])```  
