@@ -82,6 +82,7 @@ with open('./data/tokens.txt', mode='r', encoding='utf-8') as f:
             elif line.count(':') < 2:
                 tokens.append(line)
 
+markov_model = None
 with open("./data/markov.txt", mode="r", encoding='utf-8') as f:
     markov_data = f.read()
     mecab = MeCab.Tagger("-Owakati")
