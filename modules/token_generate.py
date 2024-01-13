@@ -19,7 +19,7 @@ def generate(poipoi_session, poipoi_token, email_verify):
     global tokens, caches
     proxy = _utils.get_random_proxy()
     proxy_detail = _utils.proxy_details[proxy['http']]
-    headers = _utils.empty_headers(proxy=proxy)
+    headers = _utils.empty_headers()
     username = _utils.random_string(10, 8)
     password = _utils.random_string(20, 15, True).replace(':', '0')
 
@@ -170,16 +170,6 @@ def start(email_verify):
                 _utils.tokens += tokens.split('\n')
                 f.write(tokens)
 
-            with open('./data/caches.json', mode='r', encoding='utf-8') as f:
-                _caches = []
-                filedata = f.read()
-                if filedata != '':
-                    _caches = json.loads(filedata)
-                for cache in caches:
-                    _caches.append(cache)
-                with open('./data/caches.json', mode='w', encoding='utf-8') as f2:
-                    _utils.caches = _caches
-                    f2.write(json.dumps(_caches))
         created_tokens += 1
         tokens = ''
         caches = []
@@ -200,5 +190,5 @@ def draw_module(module_frame):
 
 module = {
     'name':'Token Generator',
-    'description':'Tokenを作成します'
+    'description':'Tokenを作成します ※今は動きません'
 }

@@ -11,7 +11,6 @@ module_status = False
 
 def spam(cache, guild_id, channel_id, command, option_number=None):
     headers = copy.deepcopy(cache['headers'])
-    headers.pop('Content-Type')
     if option_number == None:
         request_data = {'payload_json': f'{{"type":2,"application_id":"{command["application_id"]}","guild_id":"{guild_id}","channel_id":"{channel_id}","session_id":"{_utils.random_string(32)}","data":{{"version":"{command["version"]}","id":"{command["id"]}","name":"{command["name"]}","type":1,"options":[],"application_command":{json.dumps(command).replace(", ", ",").replace(": ", ":")},"attachments":[]}}}}'}
     else:

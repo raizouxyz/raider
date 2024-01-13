@@ -13,16 +13,10 @@ import capmonster_python
 # https://bogdanfinn.gitbook.io/open-source-oasis/tls-client/supported-and-tested-client-profiles
 session = tls_client.Session(client_identifier="chrome_117", random_tls_extension_order=True)
 
-file_checklist = ['tokens.txt', 'proxies.txt', 'caches.json', 'markov.txt']
+file_checklist = ['tokens.txt', 'proxies.txt', 'markov.txt']
 for filename in file_checklist:
     if not os.path.isfile(f'./data/{filename}'):
         open(f'./data/{filename}', 'w')
-
-caches = []
-with open('./data/caches.json', mode='r', encoding='utf-8') as f:
-    filedata = f.read()
-    if not filedata == '':
-        caches = json.loads(filedata)
 
 config = {}
 with open('./data/config.json', mode='r', encoding='utf-8') as f:
@@ -72,27 +66,75 @@ with open('./data/proxies.txt', mode='r', encoding='utf-8') as f:
                     proxy_details[f'http://{proxy}'] = proxy_detail
                     proxies.append({'http': f'http://{proxy}', 'https': f'http://{proxy}'})
 
+def empty_headers():
+    properties = f'{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{config["useragent"]}","browser_version":"{config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{config["client_build_number"]},"client_event_source":null,"design_id":0}}'
+
+    headers = {
+        'Accept': '*/*',
+#        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Origin': 'https://discord.com',
+        'Referer': 'https://discord.com',
+        'Sec-Ch-Ua':f'"Google Chrome";v="{config["chrome_version_major"]}", "Chromium";v="{config["chrome_version_major"]}", "Not?A_Brand";v="24"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'User-Agent': config['useragent'],
+        'X-Debug-Options': 'bugReporterEnabled',
+        'X-Discord-Locale': 'ja',
+        'X-Discord-Timezone': 'Asia/Tokyo',
+        'X-Super-Properties': base64.b64encode(properties.encode()).decode(),
+    }
+    return headers
+
+def get_random_proxy():
+    if len(proxies) != 0:
+        proxy = random.choice(proxies)
+        return proxy
+    else:
+        return {'http':None,'https':None}
+
+caches = []
 tokens = []
 with open('./data/tokens.txt', mode='r', encoding='utf-8') as f:
     for line in f.read().split('\n'):
         if line != '':
             if line.count(':') == 2:
                 account_information = line.split(':')
+                login_information = {'email':account_information[0],'password':account_information[1],'token':account_information[2]}
                 tokens.append(account_information[2])
+
+                proxy = get_random_proxy()
+                headers = empty_headers()
+                headers['Authorization'] = account_information[2]
+                caches.append({'login_information':login_information, 'headers':headers, 'proxy': proxy, 'proxy_detail': proxy_details[proxy['http']]})
             elif line.count(':') < 2:
+                login_information = {'email':None,'password':None,'token':line}
                 tokens.append(line)
+
+                proxy = get_random_proxy()
+                headers = empty_headers()
+                headers['Authorization'] = line
+                caches.append({'login_information':login_information, 'headers':headers, 'proxy': proxy, 'proxy_detail': proxy_details[proxy['http']]})
 
 markov_model = None
 with open("./data/markov.txt", mode="r", encoding='utf-8') as f:
     markov_data = f.read()
-    mecab = MeCab.Tagger("-Owakati")
-    text = ''
-    if markov_data != '':
-        for line in markov_data.split('\n'):
-            if line != '':
-                parsed_data = ' '.join(mecab.parse(line).split())
-                text += f'{parsed_data}\n'
-        markov_model = markovify.NewlineText(text, well_formed=False)
+    mecab = None
+    try:
+        mecab = MeCab.Tagger("-Owakati")
+    except RuntimeError:
+        pass
+    if mecab != None:
+        text = ''
+        if markov_data != '':
+            for line in markov_data.split('\n'):
+                if line != '':
+                    parsed_data = ' '.join(mecab.parse(line).split())
+                    text += f'{parsed_data}\n'
+            markov_model = markovify.NewlineText(text, well_formed=False)
 
 def markov_sentence():
     if markov_model != None:
@@ -110,13 +152,6 @@ def get_random_cache():
         return cache
     else:
         return None
-
-def get_random_proxy():
-    if len(proxies) != 0:
-        proxy = random.choice(proxies)
-        return proxy
-    else:
-        return {'http':None,'https':None}
 
 def get_random_token():
     if len(tokens) != 0:
@@ -198,52 +233,6 @@ def replace_content(content:str, mention_members:list=['']):
     content = content.replace('<MARKOV>', markov_sentence())
 
     return content
-
-def empty_headers(proxy:dict=None):
-    if proxy == None:
-        proxy = get_random_proxy()
-    headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Sec-Ch-Ua':f'"Google Chrome";v="{config["chrome_version_major"]}", "Chromium";v="{config["chrome_version_major"]}", "Not?A_Brand";v="24"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': config['useragent'],
-    }
-    response = requests.get('https://discord.com/register', headers=headers, proxies=proxy)
-
-    cookie = ''
-    for cookie_name in response.cookies.keys():
-        cookie += f'{cookie_name}={response.cookies[cookie_name]}; '
-
-    properties = f'{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{config["useragent"]}","browser_version":"{config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{config["client_build_number"]},"client_event_source":null,"design_id":0}}'
-
-    headers = {
-        'Accept': '*/*',
-#        'Accept-Encoding': 'gzip, deflate, br',
-#        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cookie': cookie,
-#        'Origin': 'https://discord.com',
-#        'Referer': 'https://discord.com',
-        'Sec-Ch-Ua':f'"Google Chrome";v="{config["chrome_version_major"]}", "Chromium";v="{config["chrome_version_major"]}", "Not?A_Brand";v="24"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': config['useragent'],
-        'X-Debug-Options': 'bugReporterEnabled',
-        'X-Discord-Locale': 'ja',
-        'X-Discord-Timezone': 'Asia/Tokyo',
-        'X-Super-Properties': base64.b64encode(properties.encode()).decode(),
-    }
-    return headers
 
 def solve_captcha(sitekey, siteurl, useragent=None, is_invisible=False, custom_data=None, proxy_detail=None):
     if config['captcha']['service'] == 'capmonster.cloud':

@@ -7,7 +7,6 @@ markovify
 mecab
 nuitka
 pillow
-pyarmor
 pypresence
 requests
 tls_client

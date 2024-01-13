@@ -1,9 +1,7 @@
-# Thunder
+# RaizouRaider
 
-## 起動
-[MeCab](https://github.com/ikegami-yukino/mecab/releases)をインストール後  
-ディレクトリ上でpip install -r requirements.txt 
-run.batを実行
+![Screenshot1](https://raw.githubusercontent.com/raizou-zap/raider/main/screenshots/screenshot1.png)
+![Screenshot2](https://raw.githubusercontent.com/raizou-zap/raider/main/screenshots/screenshot2.png)
 
 ## Modules
 - Auto Bumper
@@ -37,15 +35,21 @@ run.batを実行
 - Webhook Spammer
 
 ### その他機能
-- マルコフ連鎖スパム
-- Tokenみたいな文字列スパム
-- ランダム文字列スパム
-- ランダムメンション
+- マルコフ連鎖スパム(<MARKOV>)
+- Tokenみたいな文字列スパム(<RANDOM_TOKEN>)
+- ランダム文字列スパム(<RANDOM_STRING>)
+- ランダムメンション(<RANDOM_MENTION>)
 - Token Checker
 - Proxy Checker
 
+## マルコフ連鎖機能の使用方法
+[MeCab](https://github.com/ikegami-yukino/mecab/releases)をインストール  
+data/markov.txtにマルコフ連鎖のデータを入れます  
+Config MenuにてMarkov ChainがEnabledになっていたら使用できます
+
 ## リンク集
 [ツイッター](https://twitter.com/raizou_zap)  
+
 
 ## メルアドぽいぽい
 ```alert(document.cookie.split("; ").find((row) => row.startsWith("cookie_csrf_token")).split("=")[1])```  

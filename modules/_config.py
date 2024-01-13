@@ -11,42 +11,6 @@ from flask import request
 from modules import _utils
 from tkinter import messagebox
 
-def refresh_caches():
-    caches = []
-    tokens = []
-
-    with open('./data/tokens.txt', mode='r', encoding='utf-8') as f:
-        lines = f.read().split('\n')
-        for line in lines:
-            if line != '':
-                # email:password:tokenで書かれていたとき
-                if line.count(':') == 2:
-                    account_information = line.split(':')
-                    login_information = {'email':account_information[0],'password':account_information[1],'token':account_information[2]}
-                    tokens.append(account_information[2])
-
-                    proxy = _utils.get_random_proxy()
-                    headers = _utils.empty_headers(proxy)
-                    headers['Authorization'] = account_information[2]
-                    print(login_information)
-                    caches.append({'login_information':login_information, 'headers':headers, 'proxy': proxy, 'proxy_detail': _utils.proxy_details[proxy['http']]})
-                # tokenだけで書かれていたとき
-                elif line.count(':') == 0:
-                    login_information = {'email':None,'password':None,'token':line}
-                    tokens.append(line)
-
-                    proxy = _utils.get_random_proxy()
-                    headers = _utils.empty_headers(proxy)
-                    headers['Authorization'] = line
-                    print(login_information)
-                    caches.append({'login_information':login_information, 'headers':headers, 'proxy': proxy, 'proxy_detail': _utils.proxy_details[proxy['http']]})
-
-    with open('./data/caches.json', mode='w', encoding='utf-8') as f:
-        f.write(json.dumps(caches))
-
-    _utils.caches = caches
-    _utils.tokens = tokens
-
 def check_token():
     valid_tokens_list = []
     valid_tokens = ''
@@ -79,15 +43,13 @@ def check_token():
 
     print(f'[Token Checker] All:{len(_utils.caches)}, Valid:{valid_tokens_count}, Flagged:{flagged_tokens_count}, RateLimited:{ratelimited_tokens_count}, Invalid:{invalid_tokens_count}')
 
-    with open('./data/caches.json', mode='w', encoding='utf-8') as f:
-        f.write(json.dumps(valid_caches))
     with open('./data/tokens.txt', mode='w', encoding='utf-8') as f:
         f.write(valid_tokens)
-    with open('./data/checker/flagged_tokens.txt', mode='w', encoding='utf-8') as f:
+    with open('./data/checker/token/flagged_tokens.txt', mode='w', encoding='utf-8') as f:
         f.write(flagged_tokens)
-    with open('./data/checker/ratelimited_tokens.txt', mode='w', encoding='utf-8') as f:
+    with open('./data/checker/token/ratelimited_tokens.txt', mode='w', encoding='utf-8') as f:
         f.write(ratelimited_tokens)
-    with open('./data/checker/invalid_tokens.txt', mode='w', encoding='utf-8') as f:
+    with open('./data/checker/token/invalid_tokens.txt', mode='w', encoding='utf-8') as f:
         f.write(invalid_tokens)
 
     _utils.tokens = valid_tokens_list
@@ -97,24 +59,22 @@ def check_proxy():
     valid_proxies_list = []
     valid_proxy_details_list = []
     valid_proxies = ''
+    invalid_proxies_list = []
     invalid_proxies = ''
-    vaild_proxies_count = 0
-    invalid_proxies_count = 0
     for proxy in _utils.proxies:
         try:
             response = requests.get('https://checkip.amazonaws.com', proxies=proxy, timeout=4)
         except requests.exceptions.ProxyError:
             invalid_proxies += _utils.proxy_details[proxy['http']]['raw'] + '\n'
-            invalid_proxies_count += 1
+            invalid_proxies_list.append(proxy)
             continue
         if response.status_code == 200:
             print(response.text)
             valid_proxies_list.append(proxy)
             valid_proxy_details_list.append(_utils.proxy_details[proxy['http']])
             valid_proxies += _utils.proxy_details[proxy['http']]['raw'] + '\n'
-            vaild_proxies_count += 1
 
-    print(f'[Proxy Checker] All:{len(_utils.proxies)}, Valid:{vaild_proxies_count}, Invalid:{invalid_proxies_count}')
+    print(f'[Proxy Checker] All:{len(_utils.proxies)}, Valid:{len(valid_proxies_list)}, Invalid:{len(invalid_proxies_list)}')
 
     with open('./data/proxies.txt', mode='w', encoding='utf-8') as f:
         f.write(valid_proxies)
@@ -192,6 +152,11 @@ def draw_module(module_frame):
     poipoi_token = tkinter.StringVar()
     poipoi_sessionhash = tkinter.StringVar()
 
+    if _utils.markov_model == None:
+        tkinter.Label(master=module_frame, text='Markov Chain: Disabled', foreground='#ffffff', background='#2c2f33').pack()
+    else:
+        tkinter.Label(master=module_frame, text='Markov Chain: Enabled', foreground='#ffffff', background='#2c2f33').pack()
+
     tkinter.Label(master=module_frame, text='Delay', foreground='#ffffff', background='#2c2f33').pack()
     tkinter.Scale(master=module_frame, variable=delay, from_=0.1, to=10, length=300, orient=tkinter.HORIZONTAL, resolution=0.1, foreground='#ffffff', background='#2c2f33').pack()
     tkinter.Label(master=module_frame, text='Spotify Client ID', foreground='#ffffff', background='#2c2f33').pack()
@@ -205,11 +170,10 @@ def draw_module(module_frame):
     tkinter.Button(master=module_frame, text='Save Config', command=lambda:save_config(delay.get(),spotify_client_id.get(),spotify_client_secret.get(),poipoi_token.get(),poipoi_sessionhash.get()), foreground='#ffffff', background='#2c2f33').pack()
     tkinter.Label(master=module_frame, background='#2c2f33').pack()
     
-    tkinter.Button(master=module_frame, text='Refresh Caches', command=lambda:threading.Thread(target=refresh_caches).start(), foreground='#ffffff', background='#2c2f33').pack(side='left')
-    tkinter.Button(master=module_frame, text='Check Tokens', command=lambda:threading.Thread(target=check_token).start(), foreground='#ffffff', background='#2c2f33').pack(side='left')
-    tkinter.Button(master=module_frame, text='Check Proxies', command=lambda:threading.Thread(target=check_proxy).start(), foreground='#ffffff', background='#2c2f33').pack(side='left')
-    tkinter.Button(master=module_frame, text='Refresh Spotify Token', command=lambda:threading.Thread(target=refresh_spotify_token).start(), foreground='#ffffff', background='#2c2f33').pack(side='left')
-    tkinter.Button(master=module_frame, text='Reload Markov Data', command=lambda:threading.Thread(target=reload_markov).start(), foreground='#ffffff', background='#2c2f33').pack(side='left')
+    tkinter.Button(master=module_frame, text='Check Tokens', command=lambda:threading.Thread(target=check_token).start(), foreground='#ffffff', background='#2c2f33').pack()
+    tkinter.Button(master=module_frame, text='Check Proxies', command=lambda:threading.Thread(target=check_proxy).start(), foreground='#ffffff', background='#2c2f33').pack()
+    tkinter.Button(master=module_frame, text='Refresh Spotify Token', command=lambda:threading.Thread(target=refresh_spotify_token).start(), foreground='#ffffff', background='#2c2f33').pack()
+    tkinter.Button(master=module_frame, text='Reload Markov Data', command=lambda:threading.Thread(target=reload_markov).start(), foreground='#ffffff', background='#2c2f33').pack()
 
 module = {
     'name': 'Config Menu'

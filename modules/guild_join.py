@@ -12,7 +12,7 @@ module_status = False
 
 def join(cache, invite_code, guild_id, channel_id, onboarding, member_verification):
     headers = copy.deepcopy(cache['headers'])
-    properties = f'{{"location":"Join Guild","location_guild_id":"{guild_id}","location_channel_id":"{channel_id}","location_channel_type":0}}'
+    properties = f'{{"location":"Accept Invite Page","location_guild_id":"{guild_id}","location_channel_id":"{channel_id}","location_channel_type":0}}'
     headers['X-Context-Properties'] = base64.b64encode(properties.encode()).decode()
     response = requests.post(f'https://discord.com/api/v9/invites/{invite_code}', headers=headers, proxies=cache['proxy'], json={"session_id":None})
     print(response.status_code, response.text)
@@ -117,5 +117,5 @@ def draw_module(module_frame):
 
 module = {
     'name':'Guild Joiner',
-    'description':'サーバーに入室します'
+    'description':'サーバーに入室します ※動くかわかりません'
 }
