@@ -66,7 +66,7 @@ with open('./data/proxies.txt', mode='r', encoding='utf-8') as f:
                     proxy_details[f'http://{proxy}'] = proxy_detail
                     proxies.append({'http': f'http://{proxy}', 'https': f'http://{proxy}'})
 
-def empty_headers():
+def empty_headers(proxy=None):
     properties = f'{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{config["useragent"]}","browser_version":"{config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{config["client_build_number"]},"client_event_source":null,"design_id":0}}'
 
     headers = {
@@ -87,6 +87,14 @@ def empty_headers():
         'X-Discord-Timezone': 'Asia/Tokyo',
         'X-Super-Properties': base64.b64encode(properties.encode()).decode(),
     }
+
+    if proxy != None:
+        response = requests.get('https://discord.gg/register', proxies=proxy)
+        cookie_text = ''
+        for cookie in response.cookies:
+            cookie_text += f'{cookie.name}={cookie.value}; '
+        headers['cookie'] = cookie_text
+
     return headers
 
 def get_random_proxy():
