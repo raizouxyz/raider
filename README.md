@@ -23,7 +23,9 @@
 - Guild Reporter
 - HypeSquad Changer
 - Message Reporter
+- GiftNitro Redeemer
 - NukeBot
+- Promotion Nitro Generator
 - Pronouns Changer
 - Reaction Adder
 - SlashCommands Spammer
