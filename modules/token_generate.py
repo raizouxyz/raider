@@ -6,10 +6,11 @@ import random
 import tkinter
 import requests
 import threading
+import playsound
 import websocket
 from modules import _utils
 from bs4 import BeautifulSoup
-
+import tls_client
 module_status = False
 
 tokens = ''
@@ -17,6 +18,7 @@ caches = []
 
 def generate(poipoi_session, poipoi_token, email_verify):
     global tokens, caches
+    session = tls_client.Session(client_identifier="chrome_120", random_tls_extension_order=True)
     proxy = _utils.get_random_proxy()
     proxy_detail = _utils.proxy_details[proxy['http']]
     headers = _utils.empty_headers(proxy=proxy)
@@ -31,13 +33,13 @@ def generate(poipoi_session, poipoi_token, email_verify):
     else:
         email = f'{_utils.random_string(15)}@gmail.com'
     headers['X-Context-Properties'] = base64.b64encode('{"location":"Register"}'.encode()).decode()
-    response = requests.get('https://discord.com/api/v9/experiments?with_guild_experiments=true', headers=headers, proxies=proxy)
+    response = session.get('https://discord.com/api/v9/experiments?with_guild_experiments=true', headers=headers, proxy=proxy)
     headers.pop('X-Context-Properties')
     fingerprint = response.json()['fingerprint']
     headers['X-Fingerprint'] = fingerprint
-    response = requests.get('https://discord.com/api/v9/auth/location-metadata', headers=headers, proxies=proxy)
+    response = session.get('https://discord.com/api/v9/auth/location-metadata', headers=headers, proxy=proxy)
     print(response.status_code, response.text)
-    response = requests.get(f'https://discord.com/api/v9/unique-username/username-suggestions-unauthed?global_name={username}', headers=headers, proxies=proxy)
+    response = session.get(f'https://discord.com/api/v9/unique-username/username-suggestions-unauthed?global_name={username}', headers=headers, proxy=proxy)
     print(response.status_code, response.text)
     username = response.json()['username']
     birth_year = random.randint(1950, 2000)
@@ -58,7 +60,7 @@ def generate(poipoi_session, poipoi_token, email_verify):
     }
 
     token = ''
-    response = requests.post('https://discord.com/api/v9/auth/register', headers=headers, proxies=proxy, json=request_data)
+    response = session.post('https://discord.com/api/v9/auth/register', headers=headers, proxy=proxy, json=request_data)
     print(response.status_code, response.text)
     if response.status_code == 201:
         token = response.json()['token']
@@ -66,10 +68,10 @@ def generate(poipoi_session, poipoi_token, email_verify):
         headers['Authorization'] = token
     elif response.status_code == 400:
         captcha_sitekey = response.json()['captcha_sitekey']
-        captcha_result = _utils.solve_captcha(captcha_sitekey, 'https://discord.com/register', headers['User-Agent'])
+        captcha_result = _utils.solve_captcha(captcha_sitekey, 'https://discord.com/register', headers['User-Agent'], proxy_detail=proxy_detail)
         if captcha_result:
             headers['X-Captcha-Key'] = captcha_result
-            response = requests.post('https://discord.com/api/v9/auth/register', headers=headers, proxies=proxy, json=request_data)
+            response = session.post('https://discord.com/api/v9/auth/register', headers=headers, proxy=proxy, json=request_data)
             print(response.status_code, response.text)
             if response.status_code == 200 or response.status_code == 201:
                 token = response.json()['token']
@@ -82,10 +84,10 @@ def generate(poipoi_session, poipoi_token, email_verify):
             return
 
     headers.pop('X-Fingerprint')
-    ws = websocket.WebSocket()
-    ws.connect("wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream", header={'User-Agent':_utils.config['useragent']}, http_proxy_host=proxy_detail['host'], http_proxy_port=proxy_detail['port'], http_proxy_auth=(proxy_detail['username'], proxy_detail['password']))
-    ws.send(f'{{"op":2,"d":{{"token":"{token}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"unknown","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"highest_last_message_id":"0","read_state_version":0,"user_guild_settings_version":-1,"user_settings_version":-1,"private_channels_version":"0","api_code_version":0}}}}}}')
-    ws.send('{"op":4,"d":{"guild_id":null,"channel_id":null,"self_mute":true,"self_deaf":false,"self_video":false,"flags":2}}')
+    #ws = websocket.WebSocket()
+    #ws.connect("wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream", header={'User-Agent':_utils.config['useragent']}, http_proxy_host=proxy_detail['host'], http_proxy_port=proxy_detail['port'], http_proxy_auth=(proxy_detail['username'], proxy_detail['password']))
+    #ws.send(f'{{"op":2,"d":{{"token":"{token}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"unknown","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"highest_last_message_id":"0","read_state_version":0,"user_guild_settings_version":-1,"user_settings_version":-1,"private_channels_version":"0","api_code_version":0}}}}}}')
+    #ws.send('{"op":4,"d":{"guild_id":null,"channel_id":null,"self_mute":true,"self_deaf":false,"self_video":false,"flags":2}}')
 
     if email_verify:
         while True:
@@ -104,14 +106,14 @@ def generate(poipoi_session, poipoi_token, email_verify):
         response = poipoi_session.post('https://m.kuku.lu/smphone.app.recv.view.php', data={'num':num, 'key':key})
         soup = BeautifulSoup(response.text, 'html.parser')
         verify_redirect_url = soup.find('a', text='\n            Verify Email\n          ').attrs['href']
-        response = requests.get(verify_redirect_url, headers=headers, proxies=proxy)
+        response = session.get(verify_redirect_url, headers=headers, proxy=proxy)
         soup = BeautifulSoup(response.text, 'html.parser')
         script_element = soup.find('script')
         verify_url = script_element.contents[0].replace('\n', '').replace('\t', '').replace('setTimeout(function(){location.href = "', '').replace('";}, 1);', '')
         response = requests.get(verify_url, headers=headers, proxies=proxy)
         verify_token = response.request.url.replace('https://discord.com/verify#token=', '')
         request_data = {"token": verify_token}
-        response = requests.post('https://discord.com/api/v9/auth/verify', headers=headers, proxies=proxy, json=request_data)
+        response = session.post('https://discord.com/api/v9/auth/verify', headers=headers, proxy=proxy, json=request_data)
         print(response.status_code, response.text)
         if response.status_code == 200:
             token = response.json()['token']
@@ -123,7 +125,7 @@ def generate(poipoi_session, poipoi_token, email_verify):
                 captcha_result = _utils.solve_captcha(captcha_sitekey, 'https://discord.com/verify', headers['User-Agent'], proxy_detail=proxy_detail)
                 if captcha_result:
                     headers['X-Captcha-Key'] = captcha_result
-                    response = requests.post('https://discord.com/api/v9/auth/verify', headers=headers, json=request_data, proxies=proxy)
+                    response = session.post('https://discord.com/api/v9/auth/verify', headers=headers, json=request_data, proxy=proxy)
                     print(response.status_code, response.text)
                     if response.status_code == 200 or response.status_code == 201:
                         print(f'[Email Verified] {email}:{password}:{token}')
@@ -138,18 +140,35 @@ def generate(poipoi_session, poipoi_token, email_verify):
                 return
 
     if 'Authorization' in headers.keys():
-        ws = websocket.WebSocket()
-        ws.connect("wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream", header={'User-Agent':_utils.config['useragent']}, http_proxy_host=proxy_detail['host'], http_proxy_port=proxy_detail['port'], http_proxy_auth=(proxy_detail['username'], proxy_detail['password']))
-        ws.send(f'{{"op":2,"d":{{"token":"{token}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"unknown","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"highest_last_message_id":"0","read_state_version":0,"user_guild_settings_version":-1,"user_settings_version":-1,"private_channels_version":"0","api_code_version":0}}}}}}')
-        ws.send('{"op":4,"d":{"guild_id":null,"channel_id":null,"self_mute":true,"self_deaf":false,"self_video":false,"flags":2}}')
-        response = requests.get('https://discord.com/api/v9/users/@me/survey', headers=headers, proxies=proxy)
+
+        response = session.get('https://discord.com/api/v9/users/@me/affinities/users', headers=headers, proxy=proxy)
         print(response.status_code, response.text)
-        if response.status_code == 200:
+
+        response = session.get('https://discord.com/api/v9/users/@me/billing/payment-sources', headers=headers, proxy=proxy)
+        print(response.status_code, response.text)
+
+        response = session.get('https://discord.com/api/v9/users/@me/billing/country-code', headers=headers, proxy=proxy)
+        print(response.status_code, response.text)
+
+        response = session.get('https://discord.com/api/v9/users/@me/survey?disable_auto_seen=true', headers=headers, proxy=proxy)
+        print(response.status_code, response.text)
+
+        response = session.get('https://discord.com/api/v9/users/@me/affinities/guilds', headers=headers, proxy=proxy)
+        print(response.status_code, response.text)
+
+        response = session.get('https://discord.com/api/v9/user-profile-effects', headers=headers, proxy=proxy)
+        print(response.status_code, response.text)
+
+        response = session.patch('https://discord.com/api/v9/users/@me/settings-proto/1', headers=headers, proxy=proxy, json={"settings":"IikKJwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYA=="})
+        print(response.status_code, response.text)
+        #if response.status_code == 200:
+        if True:
             tokens += f'{email}:{password}:{token}\n'
             caches.append({'login_information': {'email': email, 'password': password, 'token': token}, 'headers': headers, 'proxy': proxy, 'proxy_detail': proxy_detail})
 
 def start(email_verify):
     global module_status, tokens, caches
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     # alert(document.cookie.split("; ").find((row) => row.startsWith("cookie_csrf_token")).split("=")[1])

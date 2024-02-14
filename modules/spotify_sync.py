@@ -3,6 +3,7 @@ import random
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 from tkinter import messagebox
 
@@ -58,6 +59,7 @@ def update_lyrics():
 
 def start(guild_id, channel_id, all_channels, convert):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     channel_list = []

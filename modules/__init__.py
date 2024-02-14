@@ -1,38 +1,31 @@
-import importlib
-
-_modules = [
-    'autobumper',
-    'avatar_change',
-    'bannercolor_change',
-    'bio_change',
-    'bot_add',
-    'button_push',
-    'channel_spam',
-    'dicoall_leveling',
-    'displayname_change',
-    'dissoku_review',
-    'dm_spam',
-    'dropdown_select',
-    'friend_request',
-    'guild_boost',
-    'guild_join',
-    'guild_leave',
-    'guild_report',
-    'hypesquad_change',
-    'message_report',
-    'nukebot',
-    'pronouns_change',
-    'reaction_add',
-    'slashcommands_spam',
-    'spotify_sync',
-    'status_change',
-    'token_generate',
-    'userprofile_report',
-    'vc_join',
-    'webhook_spam',
-]
-
-modules = []
-for module in _modules:
-    importlib.import_module(f'modules.{module}')
-    exec(f'modules.append({module})')
+from modules import autobumper
+from modules import avatar_change
+from modules import bannercolor_change
+from modules import bio_change
+from modules import bot_add
+from modules import button_push
+from modules import channel_spam
+from modules import dicoall_leveling
+from modules import displayname_change
+from modules import dissoku_review
+from modules import dm_spam
+from modules import dropdown_select
+from modules import friend_request
+from modules import guild_boost
+from modules import guild_join
+from modules import guild_leave
+from modules import guild_report
+from modules import hypesquad_change
+from modules import message_report
+from modules import nitro_redeem
+from modules import nukebot
+from modules import promonitro_generate
+from modules import pronouns_change
+from modules import reaction_add
+from modules import slashcommands_spam
+from modules import spotify_sync
+from modules import status_change
+from modules import token_generate
+from modules import userprofile_report
+from modules import vc_join
+from modules import webhook_spam

@@ -2,6 +2,7 @@ import time
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -16,6 +17,7 @@ def change(cache, pronouns, convert):
 
 def start(pronouns, convert):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     for cache in _utils.caches:

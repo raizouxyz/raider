@@ -2,6 +2,7 @@ import time
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 from tkinter import colorchooser
 
@@ -23,6 +24,7 @@ def choose_color():
 
 def start():
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     for cache in _utils.caches:

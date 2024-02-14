@@ -252,7 +252,6 @@ def solve_captcha(sitekey, siteurl, useragent=None, is_invisible=False, custom_d
         task = capmonster.create_task(website_url=siteurl, website_key=sitekey, is_invisible=is_invisible, custom_data=custom_data)
         try:
             result = capmonster.join_task_result(task)
-            print(result)
             response = result.get('gRecaptchaResponse')
             return response
         except:

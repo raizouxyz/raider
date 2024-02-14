@@ -4,6 +4,7 @@ import base64
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -23,6 +24,7 @@ def request(cache, username):
 
 def start(username):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     for cache in _utils.caches:

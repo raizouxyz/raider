@@ -2,6 +2,7 @@ import time
 import tkinter
 import requests
 import threading
+import playsound
 import urllib.parse
 from modules import _utils
 
@@ -31,6 +32,7 @@ def post(cache, guild_id, message, score, like, convert):
 
 def start(guild_id, message, score, like, convert):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     for cache in _utils.caches:

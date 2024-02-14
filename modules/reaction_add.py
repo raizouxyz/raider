@@ -3,6 +3,7 @@ import emoji
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -13,6 +14,7 @@ def add(cache, channel_id, message_id, reaction):
 
 def start(channel_id, message_id, reaction):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     reaction = emoji.emojize(reaction, language='alias')

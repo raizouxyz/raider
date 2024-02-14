@@ -7,6 +7,7 @@ import tkinter
 import requests
 import websocket
 import threading
+import playsound
 from modules import _utils
 from tkinter import messagebox
 
@@ -28,6 +29,7 @@ def spam(cache, guild_id, channel_list, content, reply_message_id, typing, conve
 
 def start(guild_id, channel_id, content, reply_message_id, all_channels, typing, convert):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     channel_list = []

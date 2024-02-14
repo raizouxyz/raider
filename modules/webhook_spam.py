@@ -3,6 +3,7 @@ import random
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -18,6 +19,7 @@ def spam(webhook_url, content, username, avatar_url, convert):
 
 def start(webhook_url, content, username, avatar_url):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     while module_status:

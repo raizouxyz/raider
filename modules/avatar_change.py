@@ -3,6 +3,7 @@ import base64
 import tkinter
 import requests
 import threading
+import playsound
 import tkinter.filedialog
 from modules import _utils
 
@@ -20,6 +21,7 @@ def openfile():
 
 def start(filename):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     with open(filename, mode='rb') as f:

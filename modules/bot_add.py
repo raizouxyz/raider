@@ -3,6 +3,7 @@ import copy
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 from urllib.parse import urlparse
 
@@ -29,6 +30,7 @@ def add(cache, url_query):
 
 def start(url):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     parsed_url = urlparse(url)

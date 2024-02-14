@@ -4,6 +4,7 @@ import json
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 from tkinter import messagebox
 
@@ -20,6 +21,7 @@ def spam(cache, guild_id, channel_id, command, option_number=None):
 
 def start(guild_id, channel_id, application_id, command_name, subcommand_name):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     cache = _utils.caches[0]

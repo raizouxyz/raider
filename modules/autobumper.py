@@ -4,6 +4,7 @@ import json
 import tkinter
 import requests
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -45,6 +46,7 @@ def bump(cache, guild_id, channel_id, command, option_number=None):
 
 def start(guild_id, channel_id):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
     #disboard
     response = requests.get(f'https://discord.com/api/v9/channels/{channel_id}/application-commands/search?type=1&query=bump&limit=1&include_applications=true&application_id=302050872383242240', headers=_utils.caches[0]['headers'], proxies=_utils.caches[0]['proxy'])

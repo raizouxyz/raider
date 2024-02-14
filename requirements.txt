@@ -5,8 +5,9 @@ flask
 jaconv
 markovify
 mecab
-nuitka
 pillow
+playsound
+pyinstaller
 pypresence
 requests
 tls_client

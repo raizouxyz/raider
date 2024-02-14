@@ -5,6 +5,7 @@ import tkinter
 import requests
 import websocket
 import threading
+import playsound
 from modules import _utils
 
 module_status = False
@@ -12,7 +13,8 @@ module_status = False
 def change(cache, status, custom_status, custom_status_emoji, spotify_track):
     ws = websocket.WebSocket()
     ws.connect("wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream", http_proxy_host=cache['proxy_detail']['host'], http_proxy_port=cache['proxy_detail']['port'], http_proxy_auth=(cache['proxy_detail']['username'], cache['proxy_detail']['password']))
-    ws.send(f'{{"op":2,"d":{{"token":"{cache["login_information"]["token"]}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"{status}","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"highest_last_message_id":"0","read_state_version":0,"user_guild_settings_version":-1,"user_settings_version":-1,"private_channels_version":"0","api_code_version":0}}}}}}')
+    ws.send(f'{{"op":2,"d":{{"token":"{cache["login_information"]["token"]}","capabilities":16381,"properties":{{"os":"Windows","browser":"Chrome","device":"","system_locale":"ja-JP","browser_user_agent":"{_utils.config["useragent"]}","browser_version":"{_utils.config["chrome_version"]}","os_version":"10","referrer":"","referring_domain":"","referrer_current":"","referring_domain_current":"","release_channel":"stable","client_build_number":{_utils.config["client_build_number"]},"client_event_source":null}},"presence":{{"status":"{status}","since":0,"activities":[],"afk":false}},"compress":false,"client_state":{{"guild_versions":{{}},"user_guild_settings_version":-1,"api_code_version":0}}}}}}')
+    ws.send('{"op":4,"d":{"guild_id":null,"channel_id":null,"self_mute":true,"self_deaf":false,"self_video":false,"flags":2}}')
     if spotify_track != '':
         ws.send(spotify_track)
     elif custom_status != '':
@@ -25,6 +27,7 @@ def change(cache, status, custom_status, custom_status_emoji, spotify_track):
 
 def start(status, custom_status, custom_status_emoji, spotify_track_id):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     status_list = ['online', 'idle', 'dnd', 'invisible']

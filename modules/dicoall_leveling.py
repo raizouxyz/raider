@@ -3,6 +3,7 @@ import tkinter
 import requests
 import threading
 import websocket
+import playsound
 from modules import _utils
 
 module_status = False
@@ -18,6 +19,7 @@ def leveling(cache, guild_id, textchannel_id, voicechannel_id):
 
 def start(guild_id, textchannel_id, voicechannel_id):
     global module_status
+    threading.Thread(target=playsound.playsound, args=('./resources/se/1.mp3',)).start()
     module_status = True
 
     for cache in _utils.caches:
