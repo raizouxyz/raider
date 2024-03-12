@@ -3,13 +3,9 @@ capmonster_python
 emoji
 flask
 jaconv
-markovify
-mecab
 pillow
 playsound
 pyinstaller
-pypresence
 requests
 tls_client
-unidic-lite
 websocket-client

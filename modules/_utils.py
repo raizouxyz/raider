@@ -1,19 +1,17 @@
 import os
 import json
-import MeCab
 import jaconv
 import base64
 import random
 import string
 import requests
-import markovify
 import tls_client
 import capmonster_python
 
 # https://bogdanfinn.gitbook.io/open-source-oasis/tls-client/supported-and-tested-client-profiles
 session = tls_client.Session(client_identifier="chrome_117", random_tls_extension_order=True)
 
-file_checklist = ['tokens.txt', 'proxies.txt', 'markov.txt']
+file_checklist = ['tokens.txt', 'proxies.txt']
 for filename in file_checklist:
     if not os.path.isfile(f'./data/{filename}'):
         open(f'./data/{filename}', 'w')
@@ -127,33 +125,6 @@ with open('./data/tokens.txt', mode='r', encoding='utf-8') as f:
                 headers['Authorization'] = line
                 caches.append({'login_information':login_information, 'headers':headers, 'proxy': proxy, 'proxy_detail': proxy_details[proxy['http']]})
 
-markov_model = None
-with open("./data/markov.txt", mode="r", encoding='utf-8') as f:
-    markov_data = f.read()
-    mecab = None
-    try:
-        mecab = MeCab.Tagger("-Owakati")
-    except RuntimeError:
-        pass
-    if mecab != None:
-        text = ''
-        if markov_data != '':
-            for line in markov_data.split('\n'):
-                if line != '':
-                    parsed_data = ' '.join(mecab.parse(line).split())
-                    text += f'{parsed_data}\n'
-            markov_model = markovify.NewlineText(text, well_formed=False)
-
-def markov_sentence():
-    if markov_model != None:
-        sentence = markov_model.make_sentence(tries=100)
-        if sentence != None:
-            return sentence.replace(' ', '').replace('@','＠')
-        else:
-            return ''
-    else:
-        return ''
-
 def get_random_cache():
     if len(caches) != 0:
         cache = random.choice(caches)
@@ -238,7 +209,6 @@ def replace_content(content:str, mention_members:list=['']):
     content = content.replace('\\n', '\n')
     content = content.replace('<RANDOM_STRING>', random_string(15, 5))
     content = content.replace('<RANDOM_MENTION>', random.choice(mention_members))
-    content = content.replace('<MARKOV>', markov_sentence())
 
     return content
 

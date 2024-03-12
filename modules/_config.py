@@ -1,9 +1,7 @@
 import json
-import MeCab
 import base64
 import tkinter
 import requests
-import markovify
 import threading
 import webbrowser
 from flask import Flask
@@ -82,20 +80,6 @@ def check_proxy():
     with open('./data/checker/proxy/invalid_proxies.txt', mode='w', encoding='utf-8') as f:
         f.write(invalid_proxies)
 
-def reload_markov():
-    with open("./data/markov.txt", mode="r", encoding='utf-8') as f:
-        markov_data = f.read()
-        mecab = MeCab.Tagger("-Owakati")
-        text = ''
-        if markov_data != '':
-            for line in markov_data.split('\n'):
-                if line != '':
-                    parsed_data = ' '.join(mecab.parse(line).split())
-                    text += f'{parsed_data}\n'
-            _utils.markov_model = markovify.NewlineText(text, well_formed=False)
-        else:
-            _utils.markov_model = None
-
 flask_app = Flask(__name__)
 
 @flask_app.route("/callback")
@@ -152,11 +136,6 @@ def draw_module(module_frame):
     spotify_client_secret = tkinter.StringVar()
     poipoi_token = tkinter.StringVar()
     poipoi_sessionhash = tkinter.StringVar()
-
-    if _utils.markov_model == None:
-        tkinter.Label(master=module_frame, text='Markov Chain: Disabled', foreground='#ffffff', background='#2c2f33').pack()
-    else:
-        tkinter.Label(master=module_frame, text='Markov Chain: Enabled', foreground='#ffffff', background='#2c2f33').pack()
 
     tkinter.Label(master=module_frame, text='Delay', foreground='#ffffff', background='#2c2f33').pack()
     tkinter.Scale(master=module_frame, variable=delay, from_=0.1, to=10, length=300, orient=tkinter.HORIZONTAL, resolution=0.1, foreground='#ffffff', background='#2c2f33').pack()
