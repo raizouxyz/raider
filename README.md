@@ -1,9 +1,7 @@
-# [RaizouRaider Legacyの開発は2024年3月に終了しています。Discord APIの最新の仕様変更に追従されていない為、機能が使用出来なくなるか、使用出来ていてもアンチスパムシステムに検知されることが考えられるため、最新のRaizouRaider Nextを使用してください](https://github.com/raizouxyz/raider/tree/next)
-
 # RaizouRaider
 
-![Screenshot1](https://raw.githubusercontent.com/raizou-zap/raider/main/screenshots/screenshot1.png)
-![Screenshot2](https://raw.githubusercontent.com/raizou-zap/raider/main/screenshots/screenshot2.png)
+![Screenshot1](https://raw.githubusercontent.com/raizouxyz/raider/main/screenshots/screenshot1.png)
+![Screenshot2](https://raw.githubusercontent.com/raizouxyz/raider/main/screenshots/screenshot2.png)
 
 ## Modules
 - Auto Bumper
@@ -67,7 +65,7 @@ data/markov.txtにマルコフ連鎖のデータを入れます
 Config MenuにてMarkov ChainがEnabledになっていたら使用できます
 
 ## リンク集
-[ツイッター](https://twitter.com/raizou_zap)  
+[ツイッター](https://twitter.com/raizouxyz)  
 
 ## TLS Client Shared Library
 https://github.com/FlorianREGAZ/Python-Tls-Client/raw/master/tls_client/dependencies/tls-client-64.dll
@@ -77,5 +75,3 @@ token:
 ```alert(document.cookie.split("; ").find((row) => row.startsWith("cookie_csrf_token")).split("=")[1])```  
 session_hash:
 ```alert(document.cookie.split("; ").find((row) => row.startsWith("cookie_sessionhash")).split("=")[1])```
-
-# [RaizouRaider Legacyの開発は2024年3月に終了しています。Discord APIの最新の仕様変更に追従されていない為、機能が使用出来なくなるか、使用出来ていてもアンチスパムシステムに検知されることが考えられるため、最新のRaizouRaider Nextを使用してください](https://github.com/raizouxyz/raider/tree/next)
